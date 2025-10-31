@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPMS API Endpoint Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        .test-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .endpoint {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        .endpoint-url {
+            font-family: 'Courier New', monospace;
+            color: #333;
+            font-weight: bold;
+        }
+        .method {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .get { background: #28a745; color: white; }
+        .post { background: #007bff; color: white; }
+        .put { background: #ffc107; color: #333; }
+        .delete { background: #dc3545; color: white; }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .online { background: #28a745; }
+        .offline { background: #dc3545; }
+        .header-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .header-info p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .test-all-btn {
+            background: #28a745;
+            font-size: 16px;
+            padding: 12px 24px;
+            margin-bottom: 20px;
+        }
+        .test-all-btn:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 CPMS API Endpoint Tester</h1>
+        <p class="subtitle">Quick testing tool for College Placement Management System APIs</p>
+        
+        <div class="header-info">
+            <p><strong>Backend URL:</strong> <span id="backendUrl">http://localhost:4518</span></p>
+            <p><strong>Frontend URL:</strong> http://localhost:5173</p>
+            <p><strong>Status:</strong> <span class="status-indicator" id="statusDot"></span><span id="statusText">Checking...</span></p>
+        </div>
+
+        <button class="test-all-btn" onclick="testAll()">🚀 Test All Public Endpoints</button>
+
+        <div class="test-section">
+            <h2>📊 Server Health</h2>
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="endpoint-url">/</span>
+                <p>Check if backend server is running</p>
+                <button onclick="testEndpoint('/', 'GET', 'server-health')">Test</button>
+                <div id="result-server-health"></div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>👥 Student Endpoints</h2>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="endpoint-url">/student/signup</span>
+                <p>Test student registration (requires: email, password, first_name, number)</p>
+                <button onclick="testStudentSignup()">Test Signup</button>
+                <div id="result-student-signup"></div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="endpoint-url">/student/login</span>
+                <p>Test student login (requires: email, password)</p>
+                <button onclick="testStudentLogin()">Test Login</button>
+                <div id="result-student-login"></div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>💼 Job Endpoints (Requires Auth)</h2>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="endpoint-url">/tpo/jobs</span>
+                <p>Get all jobs (requires TPO authentication)</p>
+                <button onclick="showAuthRequired()">Test</button>
+                <div class="result info">⚠️ Authentication required - Login as TPO first</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🏢 Company Endpoints</h2>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="endpoint-url">/company/company-data</span>
+                <p>Get company details by ID (requires query param: companyId)</p>
+                <button onclick="showQueryRequired()">Test</button>
+                <div class="result info">ℹ️ Requires companyId query parameter</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://localhost:4518';
+        let token = null;
+
+        // Check server status on load
+        window.onload = async () => {
+            await checkServerStatus();
+        };
+
+        async function checkServerStatus() {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            
+            try {
+                const response = await fetch(BASE_URL, { method: 'GET' });
+                if (response.status === 404 || response.ok) {
+                    statusDot.className = 'status-indicator online';
+                    statusText.textContent = 'Server Online ✅';
+                    statusText.style.color = '#28a745';
+                } else {
+                    throw new Error('Server returned unexpected status');
+                }
+            } catch (error) {
+                statusDot.className = 'status-indicator offline';
+                statusText.textContent = 'Server Offline ❌';
+                statusText.style.color = '#dc3545';
+            }
+        }
+
+        async function testEndpoint(endpoint, method, resultId, data = null) {
+            const resultDiv = document.getElementById(`result-${resultId}`);
+            resultDiv.innerHTML = '<div class="result info">Testing...</div>';
+
+            try {
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+
+                if (token) {
+                    options.headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+
+                const response = await fetch(BASE_URL + endpoint, options);
+                const responseData = await response.text();
+                
+                let parsed;
+                try {
+                    parsed = JSON.parse(responseData);
+                } catch {
+                    parsed = responseData;
+                }
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            ✅ Success (${response.status})<br>
+                            Response: ${JSON.stringify(parsed, null, 2)}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            ❌ Error (${response.status})<br>
+                            Response: ${JSON.stringify(parsed, null, 2)}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        ❌ Network Error<br>
+                        ${error.message}<br>
+                        <small>Make sure backend is running on ${BASE_URL}</small>
+                    </div>
+                `;
+            }
+        }
+
+        async function testStudentSignup() {
+            const testData = {
+                email: `test${Date.now()}@cpms.com`,
+                password: 'Test@123',
+                first_name: 'Test',
+                number: 9876543210
+            };
+
+            await testEndpoint('/student/signup', 'POST', 'student-signup', testData);
+        }
+
+        async function testStudentLogin() {
+            const testData = {
+                email: 'student@cpms.com',
+                password: 'password123'
+            };
+
+            const resultDiv = document.getElementById('result-student-login');
+            resultDiv.innerHTML = '<div class="result info">Testing...</div>';
+
+            try {
+                const response = await fetch(BASE_URL + '/student/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.token) {
+                    token = data.token;
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            ✅ Login Successful!<br>
+                            Token saved for subsequent requests<br>
+                            Token: ${data.token.substring(0, 20)}...
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            ❌ Login Failed<br>
+                            ${JSON.stringify(data, null, 2)}<br>
+                            <small>Try creating a test account first or use valid credentials</small>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        ❌ Network Error<br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testAll() {
+            await checkServerStatus();
+            await testEndpoint('/', 'GET', 'server-health');
+            alert('✅ Basic health check completed!\n\nFor full testing, use the individual test buttons and follow the TEST_CHECKLIST.md');
+        }
+
+        function showAuthRequired() {
+            alert('🔒 This endpoint requires authentication.\n\nYou need to:\n1. Login as TPO/Management/Admin\n2. Get the JWT token\n3. Include it in Authorization header');
+        }
+
+        function showQueryRequired() {
+            alert('ℹ️ This endpoint requires query parameters.\n\nExample: /company/company-data?companyId=123');
+        }
+    </script>
+</body>
+</html>
