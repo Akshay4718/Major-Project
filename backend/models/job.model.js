@@ -28,6 +28,12 @@ const jobSchema = new mongoose.Schema({
     degreeCgpa: { type: Number, min: 0, max: 10 }       // Degree CGPA
   },
   
+  // Eligible Branches/Departments
+  eligibleBranches: [{
+    type: String,
+    enum: ['CSE', 'ISE', 'AIML', 'MECH', 'CIVIL', 'ECE', 'EEE']
+  }],
+  
   // company details
   company: { type: Schema.Types.ObjectId, ref: 'Company', required: true },
   

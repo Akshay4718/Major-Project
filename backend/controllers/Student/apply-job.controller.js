@@ -39,6 +39,26 @@ const AppliedToJob = async (req, res) => {
     // retune if already applied
     if (user?.studentProfile?.appliedJobs?.some(job => job.jobId == req.params.jobId)) return res.json({ msg: "Already Applied!" });
 
+    // Check Branch Eligibility
+    console.log("\n🎓 === BRANCH ELIGIBILITY CHECK START ===");
+    const studentBranch = user?.studentProfile?.department;
+    console.log("Student Branch:", studentBranch);
+    console.log("Job Eligible Branches:", job.eligibleBranches);
+    
+    if (job.eligibleBranches && job.eligibleBranches.length > 0) {
+      if (!job.eligibleBranches.includes(studentBranch)) {
+        console.log("❌ Branch NOT eligible");
+        console.log("🎓 === BRANCH ELIGIBILITY CHECK END ===\n");
+        return res.status(403).json({ 
+          msg: `This job is only open for ${job.eligibleBranches.join(', ')} branches. Your branch (${studentBranch}) is not eligible.`,
+          eligibleBranches: job.eligibleBranches,
+          studentBranch: studentBranch
+        });
+      }
+    }
+    console.log("✅ Branch eligible");
+    console.log("🎓 === BRANCH ELIGIBILITY CHECK END ===\n");
+
     // Check Placement Policy Eligibility (Ladder Policy)
     console.log("\n🎯 === PLACEMENT POLICY CHECK START ===");
     const policyCheck = await checkPlacementEligibility(req.params.studentId, req.params.jobId);

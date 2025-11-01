@@ -39,8 +39,14 @@ function PostJob() {
       setShowToast(true);
       return;
     }
+    if (!data?.eligibleBranches || data?.eligibleBranches.length === 0) {
+      setToastMessage("Please select at least one eligible branch!");
+      setShowToast(true);
+      return;
+    }
     console.log('📋 Job Data before submission:', data);
     console.log('🏷️ Job Category:', data.jobCategory);
+    console.log('🎓 Eligible Branches:', data.eligibleBranches);
     setShowModal(true);
   }
 
@@ -328,6 +334,41 @@ function PostJob() {
                           />
                         )}
                       </div>
+                    </div>
+
+                    {/* Eligible Branches Section */}
+                    <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg border-2 border-green-200">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-lg font-semibold text-green-700">🎓 Eligible Branches</span>
+                        <span className='text-red-500'>*</span>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-3">Select branches that can apply for this job</p>
+                      <div className="grid grid-cols-4 gap-3 max-md:grid-cols-2">
+                        {['CSE', 'ISE', 'AIML', 'MECH', 'CIVIL', 'ECE', 'EEE'].map((branch) => (
+                          <Form.Check
+                            key={branch}
+                            type="checkbox"
+                            label={branch}
+                            checked={data?.eligibleBranches?.includes(branch) || false}
+                            onChange={(e) => {
+                              const currentBranches = data?.eligibleBranches || [];
+                              if (e.target.checked) {
+                                setData({ ...data, eligibleBranches: [...currentBranches, branch] });
+                              } else {
+                                setData({ ...data, eligibleBranches: currentBranches.filter(b => b !== branch) });
+                              }
+                            }}
+                            className="font-medium"
+                          />
+                        ))}
+                      </div>
+                      {data?.eligibleBranches?.length > 0 && (
+                        <div className="mt-3 p-2 bg-white rounded border border-green-300">
+                          <span className="text-sm font-medium text-green-700">
+                            Selected: {data.eligibleBranches.join(', ')}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Eligibility Criteria Section */}

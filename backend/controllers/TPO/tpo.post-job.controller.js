@@ -17,8 +17,12 @@ const PostJob = async (req, res) => {
     
     // Eligibility criteria fields
     const eligibilityCriteria = req.body.eligibilityCriteria;
+    
+    // Eligible branches
+    const eligibleBranches = req.body.eligibleBranches || [];
 
     console.log('📋 Creating/Updating job with category:', jobCategory);
+    console.log('🎓 Eligible branches:', eligibleBranches);
 
     if (!jobTitle || !jobDescription || !eligibility || !company) {
       return res.status(400).json({ msg: 'Job title, job description, eligibility and company name are required.' });
@@ -26,6 +30,10 @@ const PostJob = async (req, res) => {
     
     if (!jobCategory) {
       return res.status(400).json({ msg: 'Job category is required for placement policy.' });
+    }
+    
+    if (!eligibleBranches || eligibleBranches.length === 0) {
+      return res.status(400).json({ msg: 'Please select at least one eligible branch.' });
     }
 
     const job = await JobSchema.findById(req.body._id);
@@ -42,9 +50,11 @@ const PostJob = async (req, res) => {
         jobCategory,
         isInternship,
         hasConversionOption,
-        eligibilityCriteria
+        eligibilityCriteria,
+        eligibleBranches
       });
       console.log('✅ Job updated with category:', jobCategory);
+      console.log('✅ Eligible branches:', eligibleBranches);
       res.status(201).json({ msg: 'Job Updated successfully' });
     } else {
       // Create a new job object
@@ -60,10 +70,12 @@ const PostJob = async (req, res) => {
         jobCategory,
         isInternship,
         hasConversionOption,
-        eligibilityCriteria
+        eligibilityCriteria,
+        eligibleBranches
       });
       await newJob.save();
       console.log('✅ Job created with category:', jobCategory);
+      console.log('✅ Eligible branches:', eligibleBranches);
       return res.status(201).json({ msg: 'Job posted successfully' });
     }
 
