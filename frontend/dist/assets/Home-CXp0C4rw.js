@@ -1,0 +1,1 @@
+import{j as o}from"./index-B3aSgIEu.js";import{N as r}from"./NoticeBox-B0Yj9OfZ.js";import{N as s}from"./NotificationBox-Bu8gPC7Z.js";function m(){return document.title="CPMS | TPO Dashboard",o.jsx(o.Fragment,{children:o.jsxs("div",{className:"grid grid-cols-2 gap-2 max-sm:grid-cols-1",children:[o.jsx(s,{}),o.jsx(r,{})]})})}export{m as default};
