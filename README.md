@@ -2,16 +2,38 @@
 
 <div align="center">
 
-![CPMS Banner](https://img.shields.io/badge/CPMS-College_Placement_System-blue?style=for-the-badge)
+![CPMS Banner](https://img.shields.io/badge/CPMS-College_Placement_System-blue?style=for-the-badge&logo=graduation-cap)
 
-**A comprehensive web application for managing campus placements, student profiles, job postings, and recruitment workflows.**
+**A comprehensive, intelligent web application for automating and managing campus placements with advanced features including automated shortlisting, placement policy enforcement, AI-powered roadmap generation, and real-time communication.**
 
 [![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 [![Express.js](https://img.shields.io/badge/Express.js-000000?style=flat&logo=express&logoColor=white)](https://expressjs.com/)
 [![React](https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=black)](https://reactjs.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind-38B2AC?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![JWT](https://img.shields.io/badge/JWT-000000?style=flat&logo=json-web-tokens&logoColor=white)](https://jwt.io/)
+
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/Akshay4718/Major-Project/graphs/commit-activity)
 
 </div>
+
+---
+
+## 🌟 Key Highlights
+
+- **🤖 Automated Shortlisting**: Intelligent candidate filtering based on academic criteria (CGPA, SSLC, PUC)
+- **📊 Placement Policy Engine**: Ladder-based policy (Mass → Core → Dream → Open Dream) with max 2 offers per student
+- **📧 Smart Email Notifications**: Beautiful HTML emails for application confirmations and auto-shortlist notifications
+- **🎯 Branch-Based Eligibility**: Job postings restricted to specific departments
+- **🚀 AI-Powered Roadmap Generator**: Personalized career path recommendations using Google Gemini AI
+- **📝 Resume & Profile Management**: Complete student profile with academic records and resume upload
+- **💼 Company & Job Management**: Comprehensive job posting with eligibility criteria and workflow tracking
+- **📊 Excel Export & Analytics**: Bulk applicant data export and statistics dashboard
+- **🔒 Role-Based Access Control**: Four distinct user roles with specific permissions
+- **📱 Real-Time Updates**: Live notifications and toast messages
+- **🎨 Modern UI/UX**: Responsive design with TailwindCSS and Bootstrap
 
 ---
 
