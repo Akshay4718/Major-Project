@@ -34,7 +34,8 @@ function OnlineMeetings() {
   const formatDateTime = (dateString) => {
     return new Date(dateString).toLocaleString('en-IN', {
       dateStyle: 'full',
-      timeStyle: 'short'
+      timeStyle: 'short',
+      timeZone: 'Asia/Kolkata'
     });
   };
 

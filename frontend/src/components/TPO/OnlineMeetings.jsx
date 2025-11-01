@@ -45,9 +45,17 @@ function OnlineMeetings() {
 
     try {
       const token = localStorage.getItem('token');
+      
+      // Convert local datetime to ISO string (with timezone)
+      const localDateTime = new Date(formData.scheduledTime);
+      const dataToSend = {
+        ...formData,
+        scheduledTime: localDateTime.toISOString()
+      };
+      
       const response = await axios.post(
         `${BASE_URL}/meeting/create`,
-        formData,
+        dataToSend,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -82,7 +90,8 @@ function OnlineMeetings() {
   const formatDateTime = (dateString) => {
     return new Date(dateString).toLocaleString('en-IN', {
       dateStyle: 'medium',
-      timeStyle: 'short'
+      timeStyle: 'short',
+      timeZone: 'Asia/Kolkata'
     });
   };
 
