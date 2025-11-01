@@ -386,14 +386,13 @@ function ManageApplicants() {
 
   const getStatusBadge = (status) => {
     const badges = {
-      'applied': { bg: 'bg-blue-100', text: 'text-blue-700', icon: 'fa-paper-plane', label: 'Applied' },
       'shortlisted': { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: 'fa-list-check', label: 'Shortlisted' },
       'in-process': { bg: 'bg-orange-100', text: 'text-orange-700', icon: 'fa-spinner', label: 'In Process' },
       'placed': { bg: 'bg-green-100', text: 'text-green-700', icon: 'fa-circle-check', label: 'Placed' },
       'rejected': { bg: 'bg-red-100', text: 'text-red-700', icon: 'fa-circle-xmark', label: 'Rejected' }
     };
 
-    const badge = badges[status] || badges['applied'];
+    const badge = badges[status] || badges['shortlisted'];
     return (
       <span className={`inline-flex items-center gap-1 ${badge.bg} ${badge.text} px-3 py-1 rounded-full text-xs font-semibold`}>
         <i className={`fa-solid ${badge.icon}`}></i>
@@ -463,14 +462,10 @@ function ManageApplicants() {
           </div>
 
           {/* Statistics */}
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div className="bg-gray-50 rounded-lg p-3 text-center">
               <div className="text-2xl font-bold text-gray-800">{stats.total || 0}</div>
               <div className="text-xs text-gray-600">Total</div>
-            </div>
-            <div className="bg-blue-50 rounded-lg p-3 text-center">
-              <div className="text-2xl font-bold text-blue-600">{stats.applied || 0}</div>
-              <div className="text-xs text-gray-600">Applied</div>
             </div>
             <div className="bg-yellow-50 rounded-lg p-3 text-center">
               <div className="text-2xl font-bold text-yellow-600">{stats.shortlisted || 0}</div>
@@ -494,7 +489,7 @@ function ManageApplicants() {
         {/* Tabs */}
         <div className="bg-white rounded-lg shadow-sm mb-4">
           <div className="flex gap-2 p-2 overflow-x-auto">
-            {['all', 'applied', 'shortlisted', 'in-process', 'placed', 'rejected'].map((tab) => (
+            {['all', 'shortlisted', 'in-process', 'placed', 'rejected'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -677,42 +672,10 @@ function ManageApplicants() {
                     → Showing {getFilteredApplicants().length} of {applicants.length} applicants
                   </span>
                 </div>
-                
-                {/* Bulk Shortlist Button */}
-                {(() => {
-                  const appliedCount = getFilteredApplicants().filter(a => a.applicationStatus === 'applied').length;
-                  return appliedCount > 0 && !job?.driveFinished && (
-                    <button
-                      onClick={handleBulkShortlistFiltered}
-                      className="flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
-                    >
-                      <i className="fa-solid fa-check-double"></i>
-                      Shortlist Filtered ({appliedCount})
-                    </button>
-                  );
-                })()}
               </div>
             </div>
           )}
         </div>
-
-        {/* Bulk Actions */}
-        {activeTab === 'applied' && !job?.driveFinished && (
-          <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-600">
-                Selected: {selectedForShortlist.length} for shortlist, {selectedForReject.length} for reject
-              </div>
-              <button
-                onClick={handleMarkShortlisted}
-                disabled={selectedForShortlist.length === 0 && selectedForReject.length === 0}
-                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-gray-300"
-              >
-                Update Status
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Applicants Table */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -720,7 +683,6 @@ function ManageApplicants() {
             <table className="w-full">
               <thead className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
                 <tr>
-                  {activeTab === 'applied' && <th className="px-4 py-3 text-left text-sm font-semibold">Select</th>}
                   <th className="px-4 py-3 text-left text-sm font-semibold">S.No</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold">Name</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold">Email</th>
@@ -736,33 +698,7 @@ function ManageApplicants() {
                 {getFilteredApplicants().length > 0 ? (
                   getFilteredApplicants().map((applicant, index) => (
                     <tr key={applicant.studentId._id} className="hover:bg-gray-50 transition-colors">
-                      {activeTab === 'applied' && (
-                        <td className="px-4 py-3 text-center">
-                          {!job?.driveFinished && (
-                            <div className="flex gap-2">
-                              <label className="flex items-center gap-1 cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={selectedForShortlist.includes(applicant.studentId._id)}
-                                  onChange={() => toggleShortlist(applicant.studentId._id)}
-                                  className="w-4 h-4 text-green-600 rounded"
-                                />
-                                <span className="text-xs text-green-600">✓</span>
-                              </label>
-                              <label className="flex items-center gap-1 cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={selectedForReject.includes(applicant.studentId._id)}
-                                  onChange={() => toggleReject(applicant.studentId._id)}
-                                  className="w-4 h-4 text-red-600 rounded"
-                                />
-                                <span className="text-xs text-red-600">✗</span>
-                              </label>
-                            </div>
-                          )}
-                        </td>
-                      )}
-                      <td className="px-4 py-3 text-sm text-gray-600">{index + 1}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900">{index + 1}</td>
                       <td className="px-4 py-3 text-sm font-medium text-gray-900">
                         {applicant.studentId.first_name} {applicant.studentId.last_name}
                       </td>
@@ -815,7 +751,6 @@ function ManageApplicants() {
                           disabled={job?.driveFinished}
                           className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${job?.driveFinished ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                         >
-                          <option value="applied">Applied</option>
                           <option value="shortlisted">Shortlisted</option>
                           <option value="in-process">In Process</option>
                           <option value="placed">Placed</option>
@@ -826,7 +761,7 @@ function ManageApplicants() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={activeTab === 'applied' ? 11 : 10} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={10} className="px-4 py-8 text-center text-gray-500">
                       No applicants found
                     </td>
                   </tr>

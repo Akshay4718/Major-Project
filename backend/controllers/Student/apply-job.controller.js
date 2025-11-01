@@ -1,6 +1,8 @@
 import User from '../../models/user.model.js';
 import jobSchema from '../../models/job.model.js';
 import { checkPlacementEligibility } from '../../helpers/placementPolicy.js';
+import sendMail from '../../config/Nodemailer.js';
+import Company from '../../models/company.model.js';
 
 
 const AppliedToJob = async (req, res) => {
@@ -181,9 +183,150 @@ const AppliedToJob = async (req, res) => {
     await user.save();
     await job.save();
 
+    // Send email notification
+    try {
+      const company = await Company.findById(job.company);
+      const companyName = company?.companyName || 'the company';
+      const studentName = `${user.first_name} ${user.last_name}`.trim() || user.email;
+      const studentEmail = user.email;
+
+      let emailSubject, emailContent;
+
+      if (applicationStatus === 'shortlisted') {
+        emailSubject = `🎉 You've been Shortlisted - ${job.jobTitle} at ${companyName}`;
+        emailContent = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 28px;">🎉 Congratulations!</h1>
+            </div>
+            
+            <div style="background-color: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+              <h2 style="color: #333; margin-top: 0;">You've been Shortlisted!</h2>
+              
+              <p style="color: #555; font-size: 16px; line-height: 1.6;">Dear ${studentName},</p>
+              
+              <p style="color: #555; font-size: 16px; line-height: 1.6;">
+                Great news! Your application for <strong>${job.jobTitle}</strong> at <strong>${companyName}</strong> 
+                has been <strong style="color: #10b981;">automatically shortlisted</strong> based on your excellent academic credentials!
+              </p>
+
+              <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 15px; margin: 20px 0;">
+                <p style="margin: 0; color: #059669; font-weight: bold;">✅ Auto-Shortlisted!</p>
+                <p style="margin: 5px 0 0 0; color: #065f46; font-size: 14px;">
+                  You met all the eligibility criteria and have been moved directly to the shortlist.
+                </p>
+              </div>
+
+              <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #333; margin-top: 0; font-size: 18px;">📋 Job Details</h3>
+                <table style="width: 100%; font-size: 14px;">
+                  <tr>
+                    <td style="padding: 8px 0; color: #666; width: 40%;"><strong>Position:</strong></td>
+                    <td style="padding: 8px 0; color: #333;">${job.jobTitle}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #666;"><strong>Company:</strong></td>
+                    <td style="padding: 8px 0; color: #333;">${companyName}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #666;"><strong>Salary:</strong></td>
+                    <td style="padding: 8px 0; color: #333;">₹${job.salary ? job.salary.toLocaleString() : 'Not specified'}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #666;"><strong>Status:</strong></td>
+                    <td style="padding: 8px 0; color: #10b981; font-weight: bold;">Shortlisted ✓</td>
+                  </tr>
+                </table>
+              </div>
+
+              <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0;">
+                <p style="margin: 0; color: #92400e; font-size: 14px;">
+                  <strong>⏰ Next Steps:</strong><br>
+                  The TPO will contact you soon with details about the interview process. 
+                  Keep checking your email and the placement portal for updates.
+                </p>
+              </div>
+
+              <p style="color: #555; font-size: 16px; line-height: 1.6;">
+                Best of luck with your interview!
+              </p>
+
+              <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center;">
+                <p style="color: #999; font-size: 12px; margin: 0;">This is an automated notification from CPMS</p>
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        emailSubject = `Application Received - ${job.jobTitle} at ${companyName}`;
+        emailContent = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+            <div style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 28px;">✅ Application Received</h1>
+            </div>
+            
+            <div style="background-color: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+              <h2 style="color: #333; margin-top: 0;">Thank You for Applying!</h2>
+              
+              <p style="color: #555; font-size: 16px; line-height: 1.6;">Dear ${studentName},</p>
+              
+              <p style="color: #555; font-size: 16px; line-height: 1.6;">
+                Your application for <strong>${job.jobTitle}</strong> at <strong>${companyName}</strong> 
+                has been successfully received.
+              </p>
+
+              <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #333; margin-top: 0; font-size: 18px;">📋 Job Details</h3>
+                <table style="width: 100%; font-size: 14px;">
+                  <tr>
+                    <td style="padding: 8px 0; color: #666; width: 40%;"><strong>Position:</strong></td>
+                    <td style="padding: 8px 0; color: #333;">${job.jobTitle}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #666;"><strong>Company:</strong></td>
+                    <td style="padding: 8px 0; color: #333;">${companyName}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #666;"><strong>Salary:</strong></td>
+                    <td style="padding: 8px 0; color: #333;">₹${job.salary ? job.salary.toLocaleString() : 'Not specified'}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 8px 0; color: #666;"><strong>Status:</strong></td>
+                    <td style="padding: 8px 0; color: #3b82f6; font-weight: bold;">Applied ✓</td>
+                  </tr>
+                </table>
+              </div>
+
+              <div style="background-color: #dbeafe; border-left: 4px solid #3b82f6; padding: 15px; margin: 20px 0;">
+                <p style="margin: 0; color: #1e3a8a; font-size: 14px;">
+                  <strong>⏰ What's Next:</strong><br>
+                  The TPO will review your application and update you about the selection process. 
+                  You'll receive an email notification if you are shortlisted.
+                </p>
+              </div>
+
+              <p style="color: #555; font-size: 16px; line-height: 1.6;">
+                Best wishes for your application!
+              </p>
+
+              <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center;">
+                <p style="color: #999; font-size: 12px; margin: 0;">This is an automated notification from CPMS</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      await sendMail(studentEmail, emailSubject, emailContent);
+      console.log(`✅ Email sent to ${studentEmail} - Status: ${applicationStatus}`);
+    } catch (emailError) {
+      console.error('❌ Failed to send email:', emailError);
+      // Don't fail the application if email fails
+    }
+
     const successMessage = applicationStatus === 'shortlisted' 
-      ? "Applied Successfully! You have been automatically shortlisted based on eligibility criteria." 
-      : "Applied Successfully!";
+      ? "Applied Successfully! You have been automatically shortlisted based on eligibility criteria. Check your email for details!" 
+      : "Applied Successfully! You will receive an email notification if you are shortlisted.";
 
     return res.status(201).json({ msg: successMessage, autoShortlisted: applicationStatus === 'shortlisted' });
   } catch (error) {
