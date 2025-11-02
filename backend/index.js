@@ -3,15 +3,17 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import dotenv from 'dotenv';
-
-// Load environment variables
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
+
+
+
+
+app.use(express.json());
+// app.use(cors());
 
 // ✅ Allowed frontend origins
 const allowedOrigins = [
@@ -34,19 +36,17 @@ app.use(cors({
   credentials: true, // Allow cookies/authorization headers
 }));
 
-// Middleware
-app.use(express.json());
 
-// ✅ Static file serving (profile images, resumes, offer letters)
+// public folder for users profile
 app.use('/profileImgs', express.static(path.join(__dirname, 'public/profileImgs')));
 app.use('/resume', express.static(path.join(__dirname, 'public/resumes')));
 app.use('/offerLetter', express.static(path.join(__dirname, 'public/offerLetter')));
 
-// ✅ Database connection
+// database import 
 import mongodb from './config/MongoDB.js';
 mongodb();
 
-// ✅ Routes import
+// routes import
 import userRoute from './routes/user.route.js';
 import studentRoute from './routes/student.route.js';
 import tpoRoute from './routes/tpo.route.js';
@@ -58,20 +58,32 @@ import roadmapRoute from './routes/roadmap.routes.js';
 import meetingRoute from './routes/meeting.routes.js';
 import placementWorkflowRoute from './routes/placement-workflow.routes.js';
 
-// ✅ Routes setup
+// routes for user
 app.use('/user', userRoute);
+// routes for student user
 app.use('/student', studentRoute);
+// routes for tpo user
 app.use('/tpo', tpoRoute);
+// routes for management user
 app.use('/management', managementRoute);
+// routes for admin user
 app.use('/admin', superuserRoute);
+
+// route for company
 app.use('/company', companyRoute);
+
+// route for blogs
 app.use('/blog', blogRoute);
+
+// route for roadmap generation
 app.use('/roadmap', roadmapRoute);
+
+// route for meetings
 app.use('/meeting', meetingRoute);
+
+// route for placement workflow
 app.use('/placement-workflow', placementWorkflowRoute);
 
-// ✅ Start the server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running at http://localhost:${PORT}`);
+app.listen(process.env.PORT, () => {
+  console.log(`server is running in http://localhost:${process.env.PORT}`);
 });
