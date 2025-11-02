@@ -1,0 +1,1 @@
+import{j as e}from"./index-B7OZzBRK.js";const s=()=>e.jsx("div",{className:"w-full h-screen bg-gray-100 p-4",children:e.jsx("iframe",{src:"https://resume-analyzer-1-h3l6.onrender.com/",title:"Resume Analyzer",className:"w-full h-[85vh] border border-gray-300 rounded-lg shadow-sm",allowFullScreen:!0})});export{s as default};
