@@ -13,29 +13,7 @@ const app = express();
 
 
 app.use(express.json());
-// app.use(cors());
-
-// ✅ Allowed frontend origins
-const allowedOrigins = [
-  'https://major-project-1-iep2.onrender.com',
-  'http://localhost:5173',
-  'https://major-project-zxq8-gfmuivoz0-akshay4718s-projects.vercel.app',
-];
-
-// ✅ CORS configuration
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.error('❌ CORS blocked for origin:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true, // Allow cookies/authorization headers
-}));
-
+app.use(cors());
 
 // public folder for users profile
 app.use('/profileImgs', express.static(path.join(__dirname, 'public/profileImgs')));
